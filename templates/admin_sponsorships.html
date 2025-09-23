@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Sponsorships - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 pt-3">
+                <h1 class="mb-0">Manage Sponsorships</h1>
+                <a href="{{ url_for('add_sponsorship') }}" class="btn btn-primary">
+                    <i data-feather="plus"></i> Add New Sponsorship
+                </a>
+            </div>
+
+            {% if sponsorships %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Client</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Expires</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sponsorship in sponsorships %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ sponsorship.image_url }}" alt="{{ sponsorship.title }}" 
+                                                 class="rounded me-2" width="40" height="40" style="object-fit: cover;">
+                                            <div>
+                                                <strong>{{ sponsorship.title }}</strong>
+                                                <br><small class="text-muted">{{ sponsorship.description[:50] }}...</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ sponsorship.client_name }}</td>
+                                    <td>
+                                        {% if sponsorship.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ sponsorship.created_at.strftime('%m/%d/%Y') }}</td>
+                                    <td>
+                                        {% if sponsorship.expires_at %}
+                                            {{ sponsorship.expires_at.strftime('%m/%d/%Y') }}
+                                        {% else %}
+                                            <span class="text-muted">No expiry</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button" class="btn btn-sm btn-outline-secondary" 
+                                                    onclick="toggleSponsorship({{ sponsorship.id }})">
+                                                {% if sponsorship.is_active %}
+                                                    <i data-feather="pause"></i> Deactivate
+                                                {% else %}
+                                                    <i data-feather="play"></i> Activate
+                                                {% endif %}
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onclick="deleteSponsorship({{ sponsorship.id }})">
+                                                <i data-feather="trash-2"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i data-feather="star" size="48" class="mb-3"></i>
+                        <h3>No sponsorships found</h3>
+                        <p class="text-muted">Create your first sponsorship to start promoting client content.</p>
+                        <a href="{{ url_for('add_sponsorship') }}" class="btn btn-primary">Add First Sponsorship</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+async function toggleSponsorship(sponsorshipId) {
+    try {
+        const response = await fetch(`/admin/toggle_sponsorship/${sponsorshipId}`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert(result.message, 'success');
+            window.location.reload();
+        } else {
+            showAlert(result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error toggling sponsorship:', error);
+        showAlert('Error updating sponsorship status', 'danger');
+    }
+}
+
+async function deleteSponsorship(sponsorshipId) {
+    if (!confirm('Are you sure you want to delete this sponsorship? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/admin/delete_sponsorship/${sponsorshipId}`, {
+            method: 'POST'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert(result.message, 'success');
+            window.location.reload();
+        } else {
+            showAlert(result.message, 'danger');
+        }
+    } catch (error) {
+        console.error('Error deleting sponsorship:', error);
+        showAlert('Error deleting sponsorship', 'danger');
+    }
+}
+</script>
+{% endblock %}

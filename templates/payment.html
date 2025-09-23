@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Payment - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3 class="card-title mb-0">Complete Your Purchase</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Order Summary -->
+                    <div class="mb-4">
+                        <h5>Order Summary</h5>
+                        <div class="d-flex justify-content-between align-items-center p-3 bg-dark rounded">
+                            <div>
+                                <strong>{{ plan_name }} Plan</strong><br>
+                                <small class="text-muted">{{ duration }} month{% if duration > 1 %}s{% endif %} access</small>
+                            </div>
+                            <div class="text-end">
+                                <div class="h4 mb-0">₹{{ amount }}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Form -->
+                    <form id="paymentForm" method="POST">
+                        <input type="hidden" name="plan" value="{{ plan }}">
+                        <input type="hidden" name="amount" value="{{ amount }}">
+                        <input type="hidden" name="duration" value="{{ duration }}">
+                        
+
+                        <div class="d-flex gap-2 mt-4">
+                            <a href="{{ url_for('subscription') }}" class="btn btn-outline-secondary">Back</a>
+                            <button id="rzp-button" class="btn btn-primary flex-fill">
+                                Pay ₹{{ amount }}
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Security Notice -->
+                    <div class="alert alert-info mt-4">
+                        <div class="d-flex align-items-start">
+                            <i data-feather="shield" class="me-2 mt-1"></i>
+                            <small>
+                                <strong>Secure Payment:</strong> Your payment information is encrypted and secure. 
+                                This is a demo payment system for development purposes.
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById('rzp-button').onclick = function(e){
+    e.preventDefault();
+    var options = {
+        "key": "{{ razorpay_key }}",
+        "amount": "{{ amount*100 }}",
+        "currency": "INR",
+        "name": "Prompt Mezz",
+        "description": "{{ plan_name }} Plan",
+        "order_id": "{{ order_id }}",
+        "handler": function (response){
+            window.location.href = "{{ url_for('process_payment') }}?success=true&plan={{ plan }}&duration={{ duration }}";
+        },
+        "theme": {
+            "color": "#3399cc"
+        }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+}    
+    
+</script>
+{% endblock %}

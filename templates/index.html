@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Gallery - Prompts Library{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pt-3 gap-3">
+                <h1 class="mb-0">Prompts Library</h1>
+                
+                <!-- Category Filter -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle w-100 w-md-auto" type="button" data-bs-toggle="dropdown">
+                        {% if selected_category %}
+                            {{ categories|selectattr('id', 'equalto', selected_category)|first|attr('name') }}
+                        {% else %}
+                            All Categories
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('index') }}">All Categories</a></li>
+                        {% for category in categories %}
+                            <li><a class="dropdown-item" href="{{ url_for('index', category=category.id) }}">{{ category.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Masonry Gallery -->
+            <div class="masonry-container">
+                <!-- Sponsored Content -->
+                {% for sponsorship in sponsorships %}
+                    <div class="masonry-item" data-sponsorship-id="{{ sponsorship.id }}">
+                        <div class="card sponsor-card">
+                            <div class="card-img-container">
+                                <img src="{{ sponsorship.image_url }}" class="card-img-top" alt="{{ sponsorship.title }}" loading="lazy">
+                                <div class="sponsor-badge">
+                                    <span class="badge bg-warning text-dark">
+                                        <i data-feather="star"></i> Sponsored
+                                    </span>
+                                </div>
+                                <div class="card-overlay">
+                                    <div class="overlay-content">
+                                        <h6 class="card-title mb-1">{{ sponsorship.title }}</h6>
+                                        <!-- <p class="card-text small">{{ sponsorship.description[:50] }}{% if sponsorship.description|length > 50 %}...{% endif %}</p> -->
+                                        <small class="text-muted">by {{ sponsorship.client_name }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                
+                <!-- Regular Prompts -->
+               <div id="prompt-list">
+                {% for prompt in prompts.items %}
+                    <div class="masonry-item" data-prompt-id="{{ prompt.id }}">
+                        <div class="card prompt-card">
+                            <div class="card-img-container">
+                                <img src="{{ prompt.image_url }}" class="card-img-top" alt="{{ prompt.title }}" loading="lazy">
+                                <div class="category-badge">
+                                    <span class="badge bg-primary">{{ prompt.category.name }}</span>
+                                </div>
+                                <div class="card-overlay">
+                                    <div class="overlay-content">
+                                        <h6 class="card-title mb-1">{{ prompt.title }}</h6>
+                                        <small class="text-muted">by {{ prompt.creator.username }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+{% if prompts.has_next %}
+    <a href="{{ url_for('index', page=prompts.next_num, category=selected_category) }}" class="btn btn-primary">Show More</a>
+{% endif %}
+
+
+            {% if not prompts %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i data-feather="image" size="48" class="mb-3"></i>
+                        <h3>No prompts found</h3>
+                        <p class="text-muted">No prompts available in this category. Try selecting a different category or add some prompts.</p>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('add_prompt') }}" class="btn btn-primary">Add First Prompt</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

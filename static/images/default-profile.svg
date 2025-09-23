@@ -1,0 +1,11 @@
+<svg width="150" height="150" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <style>
+            .bg { fill: #6c757d; }
+            .icon { fill: #ffffff; }
+        </style>
+    </defs>
+    <circle cx="75" cy="75" r="75" class="bg"/>
+    <circle cx="75" cy="55" r="25" class="icon"/>
+    <path d="M75 85 C50 85, 30 100, 30 120 L120 120 C120 100, 100 85, 75 85 Z" class="icon"/>
+</svg>

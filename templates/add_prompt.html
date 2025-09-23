@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Add Prompt - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Add New Prompt</h2>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                            <div class="form-text">Brief description of the prompt's purpose or output.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="prompt_text" class="form-label">Prompt Text <span class="text-danger">*</span></label>
+                            <textarea class="form-control" id="prompt_text" name="prompt_text" rows="4" required></textarea>
+                            <div class="form-text">The actual prompt text that users will see.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Image <span class="text-danger">*</span></label>
+                            
+                            <!-- Image Source Selection -->
+                            <div class="mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="image_source" id="image_url_radio" value="url" checked>
+                                    <label class="form-check-label" for="image_url_radio">
+                                        <i data-feather="link"></i> Image URL
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="image_source" id="image_upload_radio" value="upload">
+                                    <label class="form-check-label" for="image_upload_radio">
+                                        <i data-feather="upload"></i> Upload Image
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <!-- URL Input -->
+                            <div id="url_input" class="mb-2">
+                                <input type="url" class="form-control" id="image_url" name="image_url" placeholder="https://example.com/image.jpg">
+                            </div>
+                            
+                            <!-- File Upload -->
+                            <div id="file_input" class="mb-2" style="display: none;">
+                                <input type="file" class="form-control" id="image_file" name="image_file" accept="image/*">
+                                <div id="image_preview" class="mt-2"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="category_id" class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" id="category_id" name="category_id" required>
+                                <option value="">Select a category</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Add Prompt</button>
+                            <a href="{{ url_for('my_prompts') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+document.addEventListener('DOMContentLoaded', function() {
+    const urlRadio = document.getElementById('image_url_radio');
+    const uploadRadio = document.getElementById('image_upload_radio');
+    const urlInput = document.getElementById('url_input');
+    const fileInput = document.getElementById('file_input');
+    const imageFileInput = document.getElementById('image_file');
+    const imageUrlInput = document.getElementById('image_url');
+
+    // Toggle between URL and upload inputs
+    function toggleImageInput() {
+        if (urlRadio.checked) {
+            urlInput.style.display = 'block';
+            fileInput.style.display = 'none';
+            imageUrlInput.required = true;
+            imageFileInput.required = false;
+        } else {
+            urlInput.style.display = 'none';
+            fileInput.style.display = 'block';
+            imageUrlInput.required = false;
+            imageFileInput.required = true;
+        }
+    }
+
+    urlRadio.addEventListener('change', toggleImageInput);
+    uploadRadio.addEventListener('change', toggleImageInput);
+
+    // Image preview for uploaded files
+    imageFileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        const preview = document.getElementById('image_preview');
+        
+        if (file) {
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB');
+                imageFileInput.value = '';
+                preview.innerHTML = '';
+                return;
+            }
+            
+            // Validate file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+                imageFileInput.value = '';
+                preview.innerHTML = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div class="mt-2">
+                        <img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        <div class="small text-muted mt-1">Preview: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</div>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.innerHTML = '';
+        }
+    });
+
+    // Initialize feather icons
+    feather.replace();
+});
+</script>
+{% endblock %}

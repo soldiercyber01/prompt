@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Saved Prompts - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 pt-3">
+                <h1 class="mb-0">Saved Prompts</h1>
+            </div>
+
+            <!-- Saved Prompts Grid -->
+            <div class="masonry-container">
+                {% for prompt in prompts %}
+                    <div class="masonry-item" data-prompt-id="{{ prompt.id }}">
+                        <div class="card prompt-card">
+                            <div class="card-img-container">
+                                <img src="{{ prompt.image_url }}" class="card-img-top" alt="{{ prompt.title }}" loading="lazy">
+                                <div class="category-badge">
+                                    <span class="badge bg-primary">{{ prompt.category.name }}</span>
+                                </div>
+                                <div class="card-overlay">
+                                    <div class="overlay-content">
+                                        <h6 class="card-title mb-1">{{ prompt.title }}</h6>
+                                        <!-- <p class="card-text small">{{ prompt.description[:50] }}{% if prompt.description|length > 50 %}...{% endif %}</p> -->
+                                        <small class="text-muted">by {{ prompt.creator.username }}</small>
+                                    </div>
+                                    <button class="btn btn-sm btn-outline-danger unsave-btn" onclick="unsavePrompt('{{ prompt.id }}')">
+                                        <i data-feather="bookmark-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if not prompts %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i data-feather="bookmark" size="48" class="mb-3"></i>
+                        <h3>No saved prompts</h3>
+                        <p class="text-muted">You haven't saved any prompts yet. Browse the gallery and save prompts you find interesting!</p>
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">Browse Gallery</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

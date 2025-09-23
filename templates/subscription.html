@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Subscription Plans - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5 pt-4">
+                <h1>Choose Your Plan</h1>
+                <p class="lead text-muted">Unlock premium features and access all prompts</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- 1 Month Plan -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <span class="badge bg-warning text-dark">Affordable</span>
+                        </div>
+                        <div class="card-body text-center p-4">        
+                            <div class="mb-3">
+                                <h3>Monthly Plan</h3>
+                                <div class="display-4 fw-bold text-primary">₹79</div>
+                                <small class="text-muted">per month</small>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> View all prompt details</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Copy prompt text</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Save unlimited prompts</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Create unlimited prompts</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Upload custom images</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Premium support</li>
+                                <li class="mb-2"><i class="text-primary" data-feather="star"></i> <strong>1 month access</strong></li>
+                            </ul>
+                            
+                            <form action="{{ url_for('payment') }}" method="POST">
+                                <input type="hidden" name="plan" value="monthly">
+                                <input type="hidden" name="amount" value="79">
+                                <input type="hidden" name="duration" value="1">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    Choose Monthly
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 Month Plan -->
+                <div class="col-md-6">
+                    <div class="card h-100 border-primary">
+                        <div class="card-header bg-primary text-white text-center">
+                            <span class="badge bg-warning text-dark">Best Value</span>
+                        </div>
+                        <div class="card-body text-center p-4">
+                            <div class="mb-3">
+                                <h3>Quarterly Plan</h3>
+                                <div class="display-4 fw-bold text-primary">₹199</div>
+                                <small class="text-muted">for 3 months</small>
+                                <div class="text-success small mt-1">Save ₹40!</div>
+                            </div>
+                            
+                            <ul class="list-unstyled mb-4">
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> View all prompt details</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Copy prompt text</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Save unlimited prompts</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Create unlimited prompts</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Upload custom images</li>
+                                <li class="mb-2"><i class="text-success" data-feather="check-circle"></i> Premium support</li>
+                                <li class="mb-2"><i class="text-primary" data-feather="star"></i> <strong>3 months access</strong></li>
+                            </ul>
+                            
+                            <form action="{{ url_for('payment') }}" method="POST">
+                                <input type="hidden" name="plan" value="quarterly">
+                                <input type="hidden" name="amount" value="199">
+                                <input type="hidden" name="duration" value="3">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    Choose Quarterly
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if current_user.is_authenticated and current_user.is_subscribed %}
+                <div class="alert alert-success mt-4" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i data-feather="check-circle" class="me-2"></i>
+                        <div>
+                            <strong>You're already subscribed!</strong><br>
+                            {% if current_user.subscription_expiry %}
+                                Your subscription expires on {{ current_user.subscription_expiry.strftime('%B %d, %Y') }}
+                            {% else %}
+                                You have an active subscription.
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="text-center mt-5">
+                <h4>Why Choose Premium?</h4>
+                <div class="row g-4 mt-3">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i data-feather="eye" size="48" class="text-primary mb-3"></i>
+                            <h5>Full Access</h5>
+                            <p class="text-muted">View complete prompt details and copy text for your projects</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i data-feather="upload" size="48" class="text-primary mb-3"></i>
+                            <h5>Upload Images</h5>
+                            <p class="text-muted">Upload your own images from local storage for prompts</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i data-feather="bookmark" size="48" class="text-primary mb-3"></i>
+                            <h5>Unlimited Saves</h5>
+                            <p class="text-muted">Save and organize unlimited prompts for easy access</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">User Profile</h2>
+                    
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="text-center mb-4">
+                            <div class="position-relative d-inline-block">
+                                <img src="{{ current_user.profile_pic or url_for('static', filename='images/default-profile.svg') }}" 
+                                     alt="Profile Picture" 
+                                     class="rounded-circle" 
+                                     width="150" height="150" 
+                                     style="object-fit: cover; border: 3px solid var(--bs-border-color);">
+                                <label for="profile_pic" class="position-absolute bottom-0 end-0 btn btn-primary btn-sm rounded-circle" style="width: 40px; height: 40px;">
+                                    <i data-feather="camera" size="16"></i>
+                                </label>
+                                <input type="file" id="profile_pic" name="profile_pic" accept="image/*" class="d-none">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" 
+                                           value="{{ current_user.username }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email" 
+                                           value="{{ current_user.email }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="instagram_id" class="form-label">Instagram Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">@</span>
+                                <input type="text" class="form-control" id="instagram_id" name="instagram_id" 
+                                       value="{{ current_user.instagram_id or '' }}" 
+                                       placeholder="your_instagram_handle">
+                            </div>
+                            <div class="form-text">This will be displayed in your prompts to help others connect with you.</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h5>Subscription Status</h5>
+                            {% if current_user.is_subscribed %}
+                                <div class="alert alert-success d-flex align-items-center">
+                                    <i data-feather="check-circle" class="me-2"></i>
+                                    <div>
+                                        <strong>Premium Member</strong><br>
+                                        {% if current_user.subscription_expiry %}
+                                            Expires on {{ current_user.subscription_expiry.strftime('%B %d, %Y') }}
+                                        {% else %}
+                                            Active subscription
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-info d-flex align-items-center">
+                                    <i data-feather="info" class="me-2"></i>
+                                    <div>
+                                        <strong>Free Account</strong><br>
+                                        <a href="{{ url_for('subscription') }}">Upgrade to Premium</a> for full access to all features.
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('profile_pic').addEventListener('change', function(e) {
+    if (e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.querySelector('img[alt="Profile Picture"]').src = e.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ sponsorship.title }} - Sponsored Content{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <span class="badge bg-warning text-dark mb-3">
+                            <i data-feather="star"></i> Sponsored Content
+                        </span>
+                        <h1 class="card-title">{{ sponsorship.title }}</h1>
+                        <p class="text-muted">by {{ sponsorship.client_name }}</p>
+                    </div>
+                    
+                    <div class="text-center mb-4">
+                        <img src="{{ sponsorship.image_url }}" alt="{{ sponsorship.title }}" 
+                             class="img-fluid rounded" style="max-height: 400px;">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h5>About this promotion</h5>
+                        <p>{{ sponsorship.description }}</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{{ sponsorship.redirect_url }}" target="_blank" class="btn btn-primary btn-lg">
+                            <i data-feather="external-link"></i> Visit {{ sponsorship.client_name }}
+                        </a>
+                        <br>
+                        <small class="text-muted mt-2 d-block">This will open in a new tab</small>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="text-center">
+                        <p class="text-muted small">
+                            <i data-feather="info"></i> 
+                            This is sponsored content. We partner with businesses to bring you relevant promotions.
+                        </p>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i data-feather="arrow-left"></i> Back to Gallery
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize feather icons
+    feather.replace();
+</script>
+{% endblock %}

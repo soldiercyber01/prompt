@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}My Prompts - Prompt Gallery{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 pt-3 gap-3">
+                <h1 class="mb-0">My Prompts</h1>
+                
+                <div class="d-flex flex-column flex-md-row gap-2 w-100 w-md-auto">
+                    <!-- Category Filter -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            {% if selected_category %}
+                                {{ categories|selectattr('id', 'equalto', selected_category)|first|attr('name') }}
+                            {% else %}
+                                All Categories
+                            {% endif %}
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('my_prompts') }}">All Categories</a></li>
+                            {% for category in categories %}
+                                <li><a class="dropdown-item" href="{{ url_for('my_prompts', category=category.id) }}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <a href="{{ url_for('add_prompt') }}" class="btn btn-primary">
+                        <i data-feather="plus"></i> Add Prompt
+                    </a>
+                </div>
+            </div>
+
+            <!-- Prompts Grid -->
+            <div class="row g-4">
+                {% for prompt in prompts %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card prompt-card h-100">
+                            <div class="card-img-container">
+                                <img src="{{ prompt.image_url }}" class="card-img-top" alt="{{ prompt.title }}" loading="lazy">
+                                <div class="card-overlay">
+                                    <div class="overlay-content">
+                                        <h6 class="card-title mb-1">{{ prompt.title }}</h6>
+                                        <p class="card-text small">{{ prompt.description[:50] }}{% if prompt.description|length > 50 %}...{% endif %}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-secondary">{{ prompt.category.name }}</span>
+                                    <small class="text-muted">{{ prompt.created_at.strftime('%b %d, %Y') }}</small>
+                                </div>
+                                
+                                <div class="btn-group w-100" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="viewPrompt('{{ prompt.id }}')">
+                                        <i data-feather="eye"></i> View
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="editPrompt('{{ prompt.id }}')">
+                                        <i data-feather="edit"></i> Edit
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="deletePrompt('{{ prompt.id }}')">
+                                        <i data-feather="trash-2"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {% if not prompts %}
+                <div class="text-center py-5">
+                    <div class="empty-state">
+                        <i data-feather="file-text" size="48" class="mb-3"></i>
+                        <h3>No prompts yet</h3>
+                        <p class="text-muted">You haven't created any prompts yet. Start by adding your first prompt!</p>
+                        <a href="{{ url_for('add_prompt') }}" class="btn btn-primary">Add First Prompt</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

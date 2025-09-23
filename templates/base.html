@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>{% block title %}Prompts Library{% endblock %}</title>
+    <link rel="icon" type="image/png" href="/static/images/pm.jpg">
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav">
+        <button class="mobile-nav-toggle" onclick="toggleSidebar()" aria-label="Toggle Navigation">
+            <i data-feather="menu"></i>
+        </button>
+        <h5 class="mb-0 ms-3">Prompts Library</h5>
+    </div>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar" id="sidebar">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-header mb-4">
+                        <h4 class="text-center">Prompts Library</h4>
+                        {% if current_user.is_authenticated %}
+                            <div class="user-info text-center">
+                                <div class="mb-2">
+                                    <img src="{{ current_user.profile_pic or url_for('static', filename='images/default-profile.svg') }}" 
+                                         alt="{{ current_user.username }}" 
+                                         class="rounded-circle" 
+                                         width="60" height="60" 
+                                         style="object-fit: cover; border: 2px solid var(--bs-border-color);">
+                                </div>
+                                <p class="mb-1 fw-semibold">{{ current_user.username }}</p>
+                                {% if current_user.instagram_id %}
+                                    <p class="mb-1 small text-muted">
+                                        <i data-feather="instagram" size="14"></i> @{{ current_user.instagram_id }}
+                                    </p>
+                                {% endif %}
+                                {% if current_user.is_subscribed %}
+                                    <span class="badge bg-success">Premium</span>
+                                    {% if current_user.subscription_expiry %}
+                                        <div class="small text-muted mt-1">
+                                            Expires: {{ current_user.subscription_expiry.strftime('%m/%d/%Y') }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">Free</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                                <i data-feather="image"></i>
+                                Gallery
+                            </a>
+                        </li>
+                        {% if current_user.is_authenticated%}
+                            {% if current_user.is_admin %}
+                                <li class="nav-item">
+                                    <a href="{{ url_for('add_prompt') }}" class="nav-link {% if request.endpoint == 'add_prompt' %}active{% endif %}">
+                                        <i data-feather="plus-circle"></i>
+                                        Add Prompts
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ url_for('my_prompts') }}" class="nav-link {% if request.endpoint == 'my_prompts' %}active{% endif %}">
+                                        <i data-feather="user"></i>
+                                        My Prompts
+                                    </a>
+                                </li>
+                            {% endif %}    
+                            <li class="nav-item">
+                                <a href="{{ url_for('saved_prompts') }}" class="nav-link {% if request.endpoint == 'saved_prompts' %}active{% endif %}">
+                                    <i data-feather="bookmark"></i>
+                                    Saved Prompts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url_for('profile') }}" class="nav-link {% if request.endpoint == 'profile' %}active{% endif %}">
+                                    <i data-feather="user"></i>
+                                    Profile
+                                </a>
+                            </li>
+                            {% if not current_user.is_subscribed %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('subscription') }}" class="nav-link {% if request.endpoint == 'subscription' %}active{% endif %}">
+                                    <i data-feather="star"></i>
+                                    Upgrade
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if current_user.is_admin %}
+                            <li class="nav-item mt-3">
+                                <hr class="border-secondary">
+                                <small class="text-muted px-3">Admin Panel</small>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin_sponsorships') }}" class="nav-link {% if request.endpoint == 'admin_sponsorships' %}active{% endif %}">
+                                    <i data-feather="star"></i>
+                                    Sponsorships
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url_for('add_sponsorship') }}" class="nav-link {% if request.endpoint == 'add_sponsorship' %}active{% endif %}">
+                                    <i data-feather="plus-square"></i>
+                                    Add Sponsorship
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('logout') }}" class="nav-link">
+                                    <i data-feather="log-out"></i>
+                                    Logout
+                                </a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{{ url_for('login') }}" class="nav-link {% if request.endpoint == 'login' %}active{% endif %}">
+                                    <i data-feather="log-in"></i>
+                                    Login
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url_for('register') }}" class="nav-link {% if request.endpoint == 'register' %}active{% endif %}">
+                                    <i data-feather="user-plus"></i>
+                                    Register
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4" id="main-content">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div class="container mt-3">
+                            {% for category, message in messages %}
+                                <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <!-- Prompt Detail Modal -->
+    <div class="modal fade" id="promptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="promptModalTitle"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="promptModalContent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Prompt Modal -->
+    <div class="modal fade" id="editPromptModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Prompt</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editPromptForm" enctype="multipart/form-data">
+                        <input type="hidden" id="editPromptId">
+                        <div class="mb-3">
+                            <label for="editTitle" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="editTitle" name="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editPromptText" class="form-label">Prompt Text</label>
+                            <textarea class="form-control" id="editPromptText" name="prompt_text" rows="4" required></textarea>
+                        </div>
+                         <div class="mb-2">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="image_source" id="image_url_radio" value="url" checked>
+                                    <label class="form-check-label" for="image_url_radio">
+                                        <i data-feather="link"></i> Image URL
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="image_source" id="image_upload_radio" value="upload">
+                                    <label class="form-check-label" for="image_upload_radio">
+                                        <i data-feather="upload"></i> Upload Image
+                                    </label>
+                                </div>
+                            </div>
+                        <div class="mb-3">
+                            <!-- <label for="editImageUrl" class="form-label">Image URL</label> -->
+                            <input type="url" class="form-control" id="editImageUrl" name="image_url" required>
+                        </div>
+                        <div class="mb-3">
+                            <!-- <label for="editImageFile" class="form-label">Upload Image</label> -->
+                            <input type="file" class="form-control" style="display:none" id="editImageFile" name="image_file" accept="image/*">
+                            <div id="image_preview" class="mt-2"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCategory" class="form-label">Category</label>
+                            <select class="form-select" id="editCategory" name="category_id" required>
+                                <!-- Options will be populated by JavaScript -->
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="savePromptChanges()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.29.0/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        const urlRadio = document.getElementById('image_url_radio');
+        const uploadRadio = document.getElementById('image_upload_radio');
+        const urlInput = document.getElementById('editImageUrl');
+        const fileInput = document.getElementById('editImageFile');
+        const imageFileInput = document.getElementById('editImageFile');
+        const imageUrlInput = document.getElementById('editImageUrl');
+
+        // Toggle between URL and upload inputs
+        function toggleImageInput() {
+            if (urlRadio.checked) {
+                urlInput.style.display = 'block';
+                fileInput.style.display = 'none';
+                imageUrlInput.required = true;
+                imageFileInput.required = false;
+            } else {
+                urlInput.style.display = 'none';
+                fileInput.style.display = 'block';
+                imageUrlInput.required = false;
+                imageFileInput.required = true;
+            }
+        }
+
+        urlRadio.addEventListener('change', toggleImageInput);
+        uploadRadio.addEventListener('change', toggleImageInput);
+
+        // Image preview for uploaded files
+        imageFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('image_preview');
+            
+            if (file) {
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('File size must be less than 5MB');
+                    imageFileInput.value = '';
+                    preview.innerHTML = '';
+                    return;
+                }
+                
+                // Validate file type
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Please select a valid image file (JPEG, PNG, GIF, WebP)');
+                    imageFileInput.value = '';
+                    preview.innerHTML = '';
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <div class="mt-2">
+                            <img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                            <div class="small text-muted mt-1">Preview: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)</div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+
+        // Initialize feather icons
+        feather.replace();
+    
+    </script>
+</body>
+</html>
