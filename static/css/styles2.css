@@ -1,0 +1,177 @@
+/* Policy Pages Stylesheet */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+    padding: 20px 0;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #007bff;
+}
+
+.header h1 {
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.header .last-updated {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.navigation {
+    background: #f1f3f4;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.navigation a {
+    display: inline-block;
+    margin: 5px 10px;
+    padding: 8px 16px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.navigation a:hover {
+    background: #0056b3;
+}
+
+.navigation a.current {
+    background: #28a745;
+}
+
+.content h2 {
+    color: #2c3e50;
+    font-size: 1.8em;
+    margin: 30px 0 15px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.content h3 {
+    color: #495057;
+    font-size: 1.3em;
+    margin: 25px 0 12px 0;
+    font-weight: 600;
+}
+
+.content p {
+    margin-bottom: 15px;
+    text-align: justify;
+}
+
+.content ul, .content ol {
+    margin: 15px 0 15px 30px;
+}
+
+.content li {
+    margin-bottom: 8px;
+}
+
+.highlight {
+    background: #fff3cd;
+    padding: 15px;
+    border-left: 4px solid #ffc107;
+    margin: 20px 0;
+    border-radius: 4px;
+}
+
+.contact-info {
+    background: #e7f3ff;
+    padding: 20px;
+    border-radius: 6px;
+    margin: 20px 0;
+}
+
+.contact-info h4 {
+    color: #0066cc;
+    margin-bottom: 10px;
+}
+
+.contact-info p {
+    margin-bottom: 8px;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.policy-section {
+    margin-bottom: 25px;
+}
+
+.important-notice {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 20px 0;
+}
+
+.subscription-plans {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 2em;
+    }
+    
+    .navigation a {
+        display: block;
+        margin: 5px 0;
+    }
+    
+    .content h2 {
+        font-size: 1.5em;
+    }
+    
+    .content h3 {
+        font-size: 1.2em;
+    }
+}

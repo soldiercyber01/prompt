@@ -18,7 +18,8 @@ if db_url and db_url.startswith("mysql://"):
     db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
 
 # Local dev fallback (encode special chars in password)
-db_url = db_url or "mysql+pymysql://hardik:hardik%40005@localhost/prompt_gallery?charset=utf8mb4"
+# db_url = db_url or "mysql+pymysql://hardik:hardik%40005@localhost/prompt_gallery?charset=utf8mb4"
+db_url = db_url or "mysql+pymysql://root:Hardik%40005@localhost/prompt_gallery?charset=utf8mb4"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False

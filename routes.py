@@ -529,3 +529,23 @@ def view_sponsorship(sponsorship_id):
         return redirect(url_for('index'))
     
     return render_template('sponsorship_detail.html', sponsorship=sponsorship)
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    return render_template('privacy-policy.html')
+
+@app.route('/terms-conditions')
+def terms_conditions():
+    return render_template('terms-conditions.html')
+
+@app.route('/shipping-delivery')
+def shipping_delivery():
+    return render_template('shipping-delivery.html')
+
+@app.route('/contact-us')
+def contact_us():
+    return render_template('contact-us.html')
+
+@app.route('/cancellation-refund')
+def cancellation_refund():
+    return render_template('cancellation-refund.html')
