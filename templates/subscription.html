@@ -37,7 +37,7 @@
                             
                             <form action="{{ url_for('payment') }}" method="POST">
                                 <input type="hidden" name="plan" value="monthly">
-                                <input type="hidden" name="amount" value="79">
+                                <input type="hidden" name="amount" value="9">
                                 <input type="hidden" name="duration" value="1">
                                 <button type="submit" class="btn btn-primary btn-lg w-100">
                                     Choose Monthly
@@ -129,25 +129,4 @@
         </div>
     </div>
 </div>
- <!-- 🔹 Policy Notice -->
-            <div class="text-center mt-5">
-                <h5 class="fw-bold text-danger mb-3">Kindly check before purchase</h5>
-
-                <div class="card border-0 shadow-sm p-3 d-inline-block">
-                    <div class="small text-muted">
-                        <div class="mb-2">
-                            <a href="{{ url_for('cancellation_refund') }}" 
-                               class="text-decoration-none">
-                               Cancellation &amp; Refund Policy
-                            </a>
-                        </div>
-                        <div>
-                            <a href="{{ url_for('shipping_delivery') }}" 
-                               class="text-decoration-none">
-                               Shipping &amp; Delivery Policy
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
 {% endblock %}

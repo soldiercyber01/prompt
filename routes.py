@@ -11,7 +11,7 @@ from extensions import db
 from models import User, Category, Prompt, SavedPrompt, Sponsorship
 import uuid
 
-razorpay_client = razorpay.Client(auth=("rzp_test_R94PCkU2VJnndk", "zwDE4XYks7m3xViqgYKN4Jb8"))
+razorpay_client = razorpay.Client(auth=("rzp_live_RMas2O1baWS96w", "pWyiHH9vjXOJmHN8EgPiwPAy"))
 app.permanent_session_lifetime = timedelta(days=7) 
 
 @app.before_request
@@ -304,7 +304,7 @@ def payment():
                                 amount=amount, 
                                 duration=duration,
                                 order_id=order['id'],
-                                razorpay_key="rzp_test_R94PCkU2VJnndk")
+                                razorpay_key="rzp_live_RMas2O1baWS96w")
     return redirect(url_for('subscription'))
 
 

@@ -46,10 +46,30 @@
                             <i data-feather="shield" class="me-2 mt-1"></i>
                             <small>
                                 <strong>Secure Payment:</strong> Your payment information is encrypted and secure. 
-                                This is a demo payment system for development purposes.
                             </small>
                         </div>
                     </div>
+                    <!-- 🔹 Policy Notice -->
+            <div class="text-center mt-5">
+                <h5 class="fw-bold text-danger mb-3">Kindly check before purchase</h5>
+
+                <div class="card border-0 shadow-sm p-3 d-inline-block">
+                    <div class="small text-muted">
+                        <div class="mb-2">
+                            <a href="{{ url_for('cancellation_refund') }}" 
+                               class="text-decoration-none">
+                               Cancellation &amp; Refund Policy
+                            </a>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('shipping_delivery') }}" 
+                               class="text-decoration-none">
+                               Shipping &amp; Delivery Policy
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
                 </div>
             </div>
         </div>
