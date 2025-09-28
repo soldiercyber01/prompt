@@ -4,6 +4,7 @@
 
 {% block content %}
 <div class="container">
+    {% if current_user.is_admin %}
     <div class="row">
         <div class="col-lg-8 mx-auto">
             <div class="card mt-4">
@@ -78,6 +79,9 @@
             </div>
         </div>
     </div>
+    {%else%}
+    <p>You are not Authorized person for this page !!</p>
+    {% endif %}
 </div>
 <script>
     
