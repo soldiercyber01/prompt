@@ -124,6 +124,44 @@ function showPromptModal(prompt) {
                         <h6>${feather.icons['calendar'].toSvg()} Created</h6>
                         <p>${prompt.created_at}</p>
                     </div>
+                    
+                   <!-- MODELS USED -->
+                    <div class="detail-section">
+                    <h6 class="text-muted d-flex align-items-center gap-2">
+                        ${feather.icons['cpu'].toSvg()} Models Used
+                    </h6>
+
+                    <div class="d-flex gap-4 mt-2 flex-wrap justify-content-start align-items-center">
+                        <!-- Gemini -->
+                        <a href="https://gemini.google.com/" target="_blank" rel="noopener" class="model-item text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg" 
+                            alt="Gemini" class="model-icon white-icon"/>
+                        <div class="model-name">Gemini</div>
+                        </a>
+
+                        <!-- ChatGPT -->
+                        <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="model-item text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/ChatGPT-Logo.svg" 
+                            alt="ChatGPT" class="model-icon white-icon"/>
+                        <div class="model-name">ChatGPT</div>
+                        </a>
+
+                        <!-- LMArena -->
+                        <a href="https://lmarena.ai/" target="_blank" rel="noopener" class="model-item text-center">
+                        <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/lmarena-ai-icon.svg" 
+                            alt="LMArena" class="model-icon white-icon"/>
+                        <div class="model-name">LMArena</div>
+                        </a>
+
+                        <!-- MidJourney -->
+                        <a href="https://www.midjourney.com/" target="_blank" rel="noopener" class="model-item text-center">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Midjourney_Emblem.svg/960px-Midjourney_Emblem.svg.png?20230928155157
+                            alt="MidJourney" class="model-icon white-icon"/>
+                        <div class="model-name">MidJourney</div>
+                        </a>
+                    </div>
+                    </div>
+                    <!-- END MODELS USED -->
                 </div>
             </div>
         </div>

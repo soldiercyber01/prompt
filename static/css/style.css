@@ -323,6 +323,46 @@ main {
     margin-bottom: 1rem;
 }
 
+.model-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  gap: 6px;
+  width: 60px; /* fixed width to align all names below icons */
+}
+
+.model-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  padding: 4px;
+  border-radius: 10px;
+  transition: transform .16s ease, box-shadow .16s ease;
+}
+
+.white-icon { filter: brightness(0) invert(1); }
+
+.model-name {
+  font-size: 0.75rem;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.model-item:hover .model-icon {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+
+@media (max-width:576px){
+  .model-item{ width:50px; gap:4px; }
+  .model-icon{ width:40px; height:40px; }
+  .model-name{ font-size:0.7rem; }
+}
+
+
+
 /* Empty States */
 .empty-state {
     text-align: center;
