@@ -586,7 +586,7 @@ function sharePromptText(promptId) {
         .then(prompt => {
             const shareUrl = `${window.location.origin}/?prompt=${promptId}`;
             // Dynamic share text: title + creator
-            const shareText = `${prompt.title} by ${prompt.creator}\nCheck it out here: ${shareUrl}`;
+            const shareText = `${prompt.title} by ${prompt.creator}\nCheck it out here: `;
 
             if (navigator.share) {
                 navigator.share({
