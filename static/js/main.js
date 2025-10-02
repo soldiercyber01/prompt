@@ -580,22 +580,31 @@ async function copyPromptText(promptId) {
 
 // Share prompt text function
 function sharePromptText(promptId) {
-    const shareUrl = `${window.location.origin}/?prompt=${promptId}`;
+    // Pehle prompt data fetch karo
+    fetch(`/get_prompt/${promptId}`)
+        .then(res => res.json())
+        .then(prompt => {
+            const shareUrl = `${window.location.origin}/?prompt=${promptId}`;
+            // Dynamic share text: title + creator
+            const shareText = `${prompt.title} by ${prompt.creator}\nCheck it out here: ${shareUrl}`;
 
-    if (navigator.share) {
-        navigator.share({
-            title: 'Check out this prompt!',
-            text: 'Open this prompt on Prompts Library:',
-            url: shareUrl
-        }).then(() => console.log('Prompt shared successfully'))
-          .catch(err => {
-              console.error('Error sharing:', err);
-              alert('Unable to share prompt.');
-          });
-    } else {
-        navigator.clipboard.writeText(shareUrl)
-            .then(() => alert('Prompt link copied to clipboard!'));
-    }
+            if (navigator.share) {
+                navigator.share({
+                    title: prompt.title,
+                    text: shareText,
+                    url: shareUrl
+                }).then(() => console.log('Prompt shared successfully'))
+                  .catch(err => console.error('Error sharing:', err));
+            } else {
+                // Fallback: copy to clipboard
+                navigator.clipboard.writeText(shareText)
+                    .then(() => alert('Prompt details copied to clipboard!'));
+            }
+        })
+        .catch(err => {
+            console.error('Error fetching prompt for share:', err);
+            alert('Unable to share prompt.');
+        });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
