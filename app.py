@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+# from flask_mail import Mail
 from flask_login import LoginManager
 # from sqlalchemy.orm import DeclarativeBase
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -7,10 +8,22 @@ from extensions import db
 
 login_manager = LoginManager()
 
+
 # create the app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "devsecret")  # fallback if not set
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate https
+
+# Flask-Mail config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'hardikv682@gmail.com'
+app.config['MAIL_PASSWORD'] = 'tdsi jqxt bbfb yhf'
+app.config['MAIL_DEFAULT_SENDER'] = 'hardikv682@gmail.com'
+
+from flask_mail import Mail
+mail = Mail(app)
 
 
 db_url = os.getenv("CLEARDB_DATABASE_URL")  # e.g. mysql://user:pass@host/db?reconnect=true

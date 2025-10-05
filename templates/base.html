@@ -30,7 +30,7 @@
                 <div class="position-sticky pt-3">
                     <div class="sidebar-header mb-4">
                         <h4 class="text-center">Prompts Library</h4>
-                        {% if current_user.is_authenticated %}
+                        {% if current_user.is_authenticated and current_user.is_otp_verified %}
                             <div class="user-info text-center">
                                 <div class="mb-2">
                                     <img src="{{ current_user.profile_pic or url_for('static', filename='images/default-profile.svg') }}" 
@@ -66,7 +66,7 @@
                                 Gallery
                             </a>
                         </li>
-                        {% if current_user.is_authenticated%}
+                        {% if current_user.is_authenticated and current_user.is_otp_verified %}
                             {% if current_user.is_admin %}
                                 <li class="nav-item">
                                     <a href="{{ url_for('add_prompt') }}" class="nav-link {% if request.endpoint == 'add_prompt' %}active{% endif %}">
