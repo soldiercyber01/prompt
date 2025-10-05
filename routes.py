@@ -5,11 +5,15 @@ from flask import render_template, request, redirect, url_for, flash, jsonify,se
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app, mail
+from app import app
 import razorpay
 from extensions import db
 from models import User, Category, Prompt, SavedPrompt, Sponsorship
 import uuid
+
+# SMTP config (use env vars in production)
+SMTP_SENDER_EMAIL = os.environ.get('SMTP_SENDER_EMAIL', 'hardikv682@gmail.com')
+SMTP_SENDER_PASSWORD = os.environ.get('SMTP_SENDER_PASSWORD', 'tdowmwwzregmftcb')
 
 razorpay_client = razorpay.Client(auth=("rzp_live_RMas2O1baWS96w", "pWyiHH9vjXOJmHN8EgPiwPAy"))
 app.permanent_session_lifetime = timedelta(days=7) 
@@ -101,9 +105,8 @@ def register():
         # Send OTP email using smtplib
         import smtplib
         from email.mime.text import MIMEText
-        from email.mime.multipart import MIMEMultipart
-        sender_email = "hardikv682@gmail.com"
-        sender_password = "tdowmwwzregmftcb"
+        sender_email = SMTP_SENDER_EMAIL
+        sender_password = SMTP_SENDER_PASSWORD
         receiver_email = email
         subject = "Your OTP for Prompt Gallery Registration"
         body = f"""
@@ -117,13 +120,12 @@ def register():
         Prompt Gallery Team
         """
         try:
-            msg = MIMEMultipart()
+            msg = MIMEText(body, 'plain')
             msg['From'] = sender_email
             msg['To'] = receiver_email
             msg['Subject'] = subject
-            msg.attach(MIMEText(body, 'plain'))
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
+            # Use SSL connection on port 465 for reliability
+            server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             server.login(sender_email, sender_password)
             server.sendmail(sender_email, receiver_email, msg.as_string())
             server.quit()
@@ -148,12 +150,11 @@ def otp_verify():
             import random
             import smtplib
             from email.mime.text import MIMEText
-            from email.mime.multipart import MIMEMultipart
             otp_code = str(random.randint(100000, 999999))
             user.otp_code = otp_code
             db.session.commit()
-            sender_email = "hardikv682@gmail.com"
-            sender_password = "tdsi jqxt bbfb yhf"
+            sender_email = SMTP_SENDER_EMAIL
+            sender_password = SMTP_SENDER_PASSWORD
             receiver_email = user.email
             subject = "Your OTP for Prompt Gallery Verification"
             body = f"""
@@ -167,13 +168,12 @@ def otp_verify():
             Prompt Gallery Team
             """
             try:
-                msg = MIMEMultipart()
+                msg = MIMEText(body, 'plain')
                 msg['From'] = sender_email
                 msg['To'] = receiver_email
                 msg['Subject'] = subject
-                msg.attach(MIMEText(body, 'plain'))
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
+                # Use SSL connection on port 465 for reliability
+                server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
                 server.login(sender_email, sender_password)
                 server.sendmail(sender_email, receiver_email, msg.as_string())
                 server.quit()

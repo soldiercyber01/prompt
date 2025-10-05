@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     otp_code = db.Column(db.String(10), nullable=True)
     is_otp_verified = db.Column(db.Boolean, default=False, nullable=False)
+    last_otp_sent = db.Column(db.DateTime, nullable=True)
     
     # Relationships
     prompts = db.relationship('Prompt', backref='creator', lazy=True, cascade='all, delete-orphan')

@@ -19,10 +19,36 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
                     </form>
-                    <form method="POST" class="mt-3">
+                    <form id="resendForm" method="POST" class="mt-3">
                         <input type="hidden" name="resend_otp" value="1">
-                        <button type="submit" class="btn btn-outline-secondary w-100">Send OTP Again</button>
+                        <button id="resendBtn" type="submit" class="btn btn-outline-secondary w-100">Resend OTP</button>
                     </form>
+                    <script>
+                        const resendForm = document.getElementById('resendForm');
+                        const resendBtn = document.getElementById('resendBtn');
+                        let countdown = 0;
+
+                        function startCountdown(seconds) {
+                            countdown = seconds;
+                            resendBtn.disabled = true;
+                            const origText = 'Resend OTP';
+                            const timer = setInterval(() => {
+                                if (countdown <= 0) {
+                                    clearInterval(timer);
+                                    resendBtn.disabled = false;
+                                    resendBtn.textContent = origText;
+                                } else {
+                                    resendBtn.textContent = `Resend OTP (${countdown}s)`;
+                                    countdown -= 1;
+                                }
+                            }, 1000);
+                        }
+
+                        resendForm.addEventListener('submit', (e) => {
+                            // start 10s client timer to prevent double clicks while request is processed
+                            startCountdown(10);
+                        });
+                    </script>
                 </div>
             </div>
         </div>
