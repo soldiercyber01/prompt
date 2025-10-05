@@ -5,7 +5,7 @@ from flask import render_template, request, redirect, url_for, flash, jsonify,se
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-from app import app
+from app import app, mail
 import razorpay
 from extensions import db
 from models import User, Category, Prompt, SavedPrompt, Sponsorship
@@ -57,19 +57,19 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-   
-     
         user = User.query.filter_by(username=username).first()
-        
+        print(user.is_otp_verified)
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
+            if not user.is_otp_verified:
+                flash('Please verify your OTP before logging in.', 'error')
+                return redirect(url_for('otp_verify'))
             session.permanent = True
             flash('Logged in successfully!', 'success')
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
             flash('Invalid username or password!', 'error')
-    
     return render_template('login.html')
 
 
@@ -79,31 +79,93 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        
         # Check if user already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists!', 'error')
             return render_template('register.html')
-        
         if User.query.filter_by(email=email).first():
             flash('Email already registered!', 'error')
             return render_template('register.html')
-        
-        # Create new user
+        import random
+        otp_code = str(random.randint(100000, 999999))
         user = User(
             username=username,
             email=email,
-            password_hash=generate_password_hash(password)
+            password_hash=generate_password_hash(password),
+            otp_code=otp_code,
+            is_otp_verified=False
         )
-        
         db.session.add(user)
         db.session.commit()
-        
+
+        # Send OTP email using Flask-Mail
+        from flask_mail import Message
+        subject = "Your OTP for Prompt Gallery Registration"
+        body = f"""
+        Hello {username},
+
+        Your OTP for registration is: {otp_code}
+
+        Please enter this OTP to verify your account.
+
+        Regards,
+        Prompt Gallery Team
+        """
+        try:
+            msg = Message(subject, recipients=[email], body=body)
+            mail.send(msg)
+            flash('Registration successful! OTP sent to your email.', 'success')
+        except Exception as e:
+            print('OTP email send error:', e)
+            flash('Registration successful, but failed to send OTP email. Please contact support or try again.', 'error')
+
         login_user(user)
-        flash('Registration successful!', 'success')
-        return redirect(url_for('index'))
-    
+        return redirect(url_for('otp_verify'))
     return render_template('register.html')
+
+@app.route('/otp_verify', methods=['GET', 'POST'])
+@login_required
+def otp_verify():
+    error = None
+    user = current_user
+    if user.is_otp_verified:
+        return redirect(url_for('index'))
+    if request.method == 'POST':
+        if request.form.get('resend_otp'):
+            import random
+            from flask_mail import Message
+            otp_code = str(random.randint(100000, 999999))
+            user.otp_code = otp_code
+            db.session.commit()
+            subject = "Your OTP for Prompt Gallery Verification"
+            body = f"""
+            Hello {user.username},
+
+            Your OTP for verification is: {otp_code}
+
+            Please enter this OTP to verify your account.
+
+            Regards,
+            Prompt Gallery Team
+            """
+            try:
+                msg = Message(subject, recipients=[user.email], body=body)
+                mail.send(msg)
+                flash('OTP sent to your email.', 'success')
+            except Exception as e:
+                print('OTP resend error:', e)
+                flash('Failed to send OTP email. Please contact support or try again.', 'error')
+        else:
+            otp_input = request.form.get('otp')
+            if otp_input == user.otp_code:
+                user.is_otp_verified = True
+                user.otp_code = None
+                db.session.commit()
+                flash('OTP verified successfully!', 'success')
+                return redirect(url_for('index'))
+            else:
+                error = 'Invalid OTP. Please try again.'
+    return render_template('otp_verify.html', error=error)
 
 
 @app.route('/logout')

@@ -14,6 +14,8 @@ class User(UserMixin, db.Model):
     profile_pic = db.Column(db.String(500), nullable=True)
     instagram_id = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    otp_code = db.Column(db.String(10), nullable=True)
+    is_otp_verified = db.Column(db.Boolean, default=False, nullable=False)
     
     # Relationships
     prompts = db.relationship('Prompt', backref='creator', lazy=True, cascade='all, delete-orphan')
