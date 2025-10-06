@@ -88,8 +88,10 @@ function showPromptModal(prompt) {
     
     title.textContent = prompt.title;
     
-    // Check if user is authenticated and subscribed
+    // Check if user is authenticated AND OTP verified
     const isAuthenticated = document.querySelector('.user-info') !== null;
+    const isOtpVerified = document.querySelector('.otp-verified') !== null;
+    const isUserVerified = isAuthenticated && isOtpVerified;
     const isSubscribed = document.querySelector('.badge.bg-success') !== null;
     
     let contentHTML = `
@@ -107,7 +109,6 @@ function showPromptModal(prompt) {
                     <div class="detail-section">
                         <h6>${feather.icons['user'].toSvg()} Creator</h6>
                         <div class="d-flex align-items-center">
-
                             <img src="${prompt.creator_profile_pic || '/static/images/default-profile.svg'}" 
                                  alt="${prompt.creator}" 
                                  class="rounded-circle me-2" 
@@ -125,43 +126,33 @@ function showPromptModal(prompt) {
                         <p>${prompt.created_at}</p>
                     </div>
                     
-                   <!-- MODELS USED -->
                     <div class="detail-section">
-                    <h6 class="text-muted d-flex align-items-center gap-2">
-                        ${feather.icons['cpu'].toSvg()} Models Used
-                    </h6>
-
-                    <div class="d-flex gap-4 mt-2 flex-wrap justify-content-start align-items-center">
-                        <!-- Gemini -->
-                        <a href="https://gemini.google.com/" target="_blank" rel="noopener" class="model-item text-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg" 
-                            alt="Gemini" class="model-icon white-icon"/>
-                        <div class="model-name">Gemini</div>
-                        </a>
-
-                        <!-- ChatGPT -->
-                        <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="model-item text-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/ChatGPT-Logo.svg" 
-                            alt="ChatGPT" class="model-icon white-icon"/>
-                        <div class="model-name">ChatGPT</div>
-                        </a>
-
-                        <!-- LMArena -->
-                        <a href="https://lmarena.ai/" target="_blank" rel="noopener" class="model-item text-center">
-                        <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/lmarena-ai-icon.svg" 
-                            alt="LMArena" class="model-icon white-icon"/>
-                        <div class="model-name">LMArena</div>
-                        </a>
-
-                        <!-- MidJourney -->
-                        <a href="https://www.midjourney.com/" target="_blank" rel="noopener" class="model-item text-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Midjourney_Emblem.svg/960px-Midjourney_Emblem.svg.png?20230928155157
-                            alt="MidJourney" class="model-icon white-icon"/>
-                        <div class="model-name">MidJourney</div>
-                        </a>
+                        <h6 class="text-muted d-flex align-items-center gap-2">
+                            ${feather.icons['cpu'].toSvg()} Models Used
+                        </h6>
+                        <div class="d-flex gap-4 mt-2 flex-wrap justify-content-start align-items-center">
+                            <a href="https://gemini.google.com/" target="_blank" rel="noopener" class="model-item text-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/Google_Gemini_icon_2025.svg" 
+                                    alt="Gemini" class="model-icon white-icon"/>
+                                <div class="model-name">Gemini</div>
+                            </a>
+                            <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="model-item text-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/e/ef/ChatGPT-Logo.svg" 
+                                    alt="ChatGPT" class="model-icon white-icon"/>
+                                <div class="model-name">ChatGPT</div>
+                            </a>
+                            <a href="https://lmarena.ai/" target="_blank" rel="noopener" class="model-item text-center">
+                                <img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/lmarena-ai-icon.svg" 
+                                    alt="LMArena" class="model-icon white-icon"/>
+                                <div class="model-name">LMArena</div>
+                            </a>
+                            <a href="https://www.midjourney.com/" target="_blank" rel="noopener" class="model-item text-center">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Midjourney_Emblem.svg/960px-Midjourney_Emblem.svg.png?20230928155157"
+                                    alt="MidJourney" class="model-icon white-icon"/>
+                                <div class="model-name">MidJourney</div>
+                            </a>
+                        </div>
                     </div>
-                    </div>
-                    <!-- END MODELS USED -->
                 </div>
             </div>
         </div>
@@ -177,12 +168,9 @@ function showPromptModal(prompt) {
         contentHTML += `
             <div class="detail-section">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <!-- Left side: Title -->
                     <h6 class="d-flex align-items-center mb-0">
                         ${feather.icons['file-text'].toSvg()} Prompt Text
                     </h6>
-
-                    <!-- Right side: Buttons -->
                     <div>
                         <button class="btn btn-sm btn-outline-secondary me-1" onclick="copyPromptText('${prompt.id}')" id="copyBtn_${prompt.id}">
                             ${feather.icons['copy'].toSvg()} Copy
@@ -195,8 +183,6 @@ function showPromptModal(prompt) {
                 <p class="font-monospace bg-body-secondary p-3 rounded" id="promptText_${prompt.id}">${prompt.prompt_text}</p>
             </div>
         `;
-        
-        // Show action buttons for authenticated users
         let actionButtons = '';
         if (!prompt.is_saved) {
             actionButtons += `<button class="btn btn-outline-primary me-2" onclick="savePrompt(this, ${prompt.id})">
@@ -207,8 +193,6 @@ function showPromptModal(prompt) {
                 <i class="fa-solid fa-bookmark"></i> Unsave Prompt
             </button>`;
         }
-
-        
         if (prompt.can_edit) {
             actionButtons += `
                 <button class="btn btn-outline-secondary me-2" onclick="editPrompt(${prompt.id})">
@@ -219,12 +203,11 @@ function showPromptModal(prompt) {
                 </button>
             `;
         }
-        
         if (actionButtons) {
             contentHTML += `<div class="mt-3">${actionButtons}</div>`;
         }
-    } else if (isAuthenticated && current_user.is_otp_verified && !isSubscribed) {
-        // Show subscription prompt for non-subscribed users
+    } else if (isUserVerified && !isSubscribed) {
+        // Show subscription prompt for verified but non-subscribed users
         contentHTML += `
             <div class="subscription-prompt">
                 <div class="icon">🔒</div>
@@ -234,18 +217,17 @@ function showPromptModal(prompt) {
                     <form action="/subscription" method="POST" style="display: inline;">
                         <button type="submit" class="btn btn-warning">Upgrade to Premium</button>
                     </form>
-                    <!-- Free trial button shown when eligible -->
                     ${prompt.can_start_trial ? `<button id="startTrialBtn" class="btn btn-success">Start 1-month Free Trial</button>` : ''}
                 </div>
             </div>
         `;
-    } else if (!isAuthenticated || !current_user.is_otp_verified){
-        // Show login prompt for non-authenticated users
+    } else {
+        // Show login/OTP prompt for non-authenticated or non-verified users
         contentHTML += `
             <div class="subscription-prompt">
                 <div class="icon">🔐</div>
-                <h4>Login Required</h4>
-                <p>Please login to view full prompt details and access all features.</p>
+                <h4>Login & OTP Verification Required</h4>
+                <p>Please login and verify OTP to view full prompt details and access all features.</p>
                 <a href="/login" class="btn btn-primary">Login</a>
                 <a href="/register" class="btn btn-outline-primary ms-2">Register</a>
             </div>
@@ -253,10 +235,6 @@ function showPromptModal(prompt) {
     }
     
     content.innerHTML = contentHTML;
-    
-    // Re-initialize feather icons
-    // feather.replace();
-    
     modal.show();
 
     // Wire up free trial button if present
@@ -266,12 +244,9 @@ function showPromptModal(prompt) {
             try {
                 const res = await fetch('/start_trial', { method: 'POST' });
                 if (res.redirected) {
-                    // If server redirects, follow to update UI
                     window.location.href = res.url;
                     return;
                 }
-
-                // Otherwise, try to parse JSON or reload
                 window.location.reload();
             } catch (err) {
                 console.error('Error starting trial:', err);

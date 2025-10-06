@@ -22,7 +22,9 @@
     
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
-    
+    {% if current_user.is_authenticated and current_user.is_otp_verified %}
+        <div class="otp-verified" style="display:none"></div>
+    {% endif %}
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
