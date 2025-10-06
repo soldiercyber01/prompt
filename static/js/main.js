@@ -239,7 +239,7 @@ function showPromptModal(prompt) {
                 </div>
             </div>
         `;
-    } else if (!isAuthenticated && !current_user.is_otp_verified){
+    } else if (!isAuthenticated ){
         // Show login prompt for non-authenticated users
         contentHTML += `
             <div class="subscription-prompt">

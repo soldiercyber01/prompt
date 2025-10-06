@@ -62,7 +62,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username).first()
-        print(user.is_otp_verified)
+        # print(user.is_otp_verified)
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             if not user.is_otp_verified:
