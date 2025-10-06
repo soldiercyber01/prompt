@@ -223,7 +223,7 @@ function showPromptModal(prompt) {
         if (actionButtons) {
             contentHTML += `<div class="mt-3">${actionButtons}</div>`;
         }
-    } else if (isAuthenticated && !isSubscribed) {
+    } else if (isAuthenticated && current_user.is_otp_verified && !isSubscribed) {
         // Show subscription prompt for non-subscribed users
         contentHTML += `
             <div class="subscription-prompt">
@@ -239,7 +239,7 @@ function showPromptModal(prompt) {
                 </div>
             </div>
         `;
-    } else {
+    } else if (!isAuthenticated || !current_user.is_otp_verified){
         // Show login prompt for non-authenticated users
         contentHTML += `
             <div class="subscription-prompt">
