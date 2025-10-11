@@ -3,8 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>{% block title %}Prompts Library{% endblock %}</title>
+    <title>{% block title %}Prompts Library | India's #1 AI Prompts Marketplace{% endblock %}</title>
+    <meta name="description" content="Discover, use, and share AI prompts for ChatGPT, Midjourney, and Gemini. Free & premium prompts by India's top creators.">
+    <meta name="keywords" content="AI prompts, ChatGPT prompts, Midjourney prompts, free prompts, prompts marketplace, AI tools India">
+
+    <meta property="og:title" content="Prompts Library - India's #1 AI Prompts Platform">
+    <meta property="og:description" content="Explore AI prompts for ChatGPT, Gemini, Midjourney and more. Free to use, earn with your creations!">
+    <meta property="og:image" content="{{ url_for('static', filename='images/pm.png', _external=True) }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Prompts Library - India's #1 AI Prompts Platform">
+    <meta name="twitter:description" content="Explore AI prompts for ChatGPT, Gemini, Midjourney and more.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='images/pm.png', _external=True) }}">
+
     <link rel="icon" type="image/png" href="/static/images/pm.png">
+    <link rel="canonical" href="{{ request.url }}">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Prompts Library",
+      "url": "{{ url_for('index', _external=True) }}",
+      "logo": "{{ url_for('static', filename='images/pm.png', _external=True) }}",
+      "description": "India's #1 AI Prompts Marketplace — explore and sell ChatGPT, Gemini, and Midjourney prompts.",
+      "sameAs": [
+        "https://www.instagram.com/prompts_library",
+        "https://www.twitter.com/prompts_library"
+      ]
+    }
+    </script>
+
     <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
@@ -105,6 +136,12 @@
                             <li class="nav-item mt-3">
                                 <hr class="border-secondary">
                                 <small class="text-muted px-3">Admin Panel</small>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ url_for('admin_users') }}" class="nav-link {% if request.endpoint == 'admin_users' %}active{% endif %}">
+                                    <i data-feather="users"></i>
+                                    Users
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <a href="{{ url_for('admin_sponsorships') }}" class="nav-link {% if request.endpoint == 'admin_sponsorships' %}active{% endif %}">

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4">User Management</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Total Users</h6>
+                            <h2 class="card-title mb-0">{{ total_users }}</h2>
+                        </div>
+                        <i data-feather="users" size="48" class="opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Subscribed Users</h6>
+                            <h2 class="card-title mb-0">{{ subscribed_users }}</h2>
+                            <small class="opacity-75">{{ (subscribed_users / total_users * 100)|round(1) if total_users > 0 else 0 }}% of total</small>
+                        </div>
+                        <i data-feather="star" size="48" class="opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-2 opacity-75">Recent Signups</h6>
+                            <h2 class="card-title mb-0">{{ recent_signups }}</h2>
+                            <small class="opacity-75">Last 7 days</small>
+                        </div>
+                        <i data-feather="trending-up" size="48" class="opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h5 class="card-title">All Users</h5>
+                </div>
+                <div class="col-md-6">
+                    <form method="GET" class="d-flex gap-2">
+                        <input type="text" name="search" class="form-control" placeholder="Search by name, username, or email..."
+                               value="{{ search_query or '' }}">
+                        <button type="submit" class="btn btn-primary"><i data-feather="search"></i></button>
+                        {% if search_query %}
+                        <a href="{{ url_for('admin_users') }}" class="btn btn-secondary"><i data-feather="x"></i></a>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Join Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <img src="{{ user.profile_pic or url_for('static', filename='images/default-profile.svg') }}"
+                                         alt="{{ user.username }}"
+                                         class="rounded-circle me-2"
+                                         width="35" height="35"
+                                         style="object-fit: cover;">
+                                    <div>
+                                        <strong>{{ user.username }}</strong>
+                                        {% if user.is_admin %}
+                                        <span class="badge bg-danger ms-1">Admin</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                            <td>
+                                {% if user.is_subscribed %}
+                                <span class="badge bg-success">
+                                    <i data-feather="star" size="14"></i> Premium
+                                </span>
+                                {% if user.subscription_expiry %}
+                                <br><small class="text-muted">Expires: {{ user.subscription_expiry.strftime('%m/%d/%Y') }}</small>
+                                {% endif %}
+                                {% else %}
+                                <span class="badge bg-secondary">Free</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{{ url_for('public_profile', username=user.username) }}"
+                                   class="btn btn-sm btn-outline-primary"
+                                   target="_blank">
+                                    <i data-feather="external-link" size="14"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if users.pages > 1 %}
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if users.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_users', page=users.prev_num, search=search_query) }}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    {% for page_num in users.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            <li class="page-item {% if page_num == users.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin_users', page=page_num, search=search_query) }}">{{ page_num }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if users.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('admin_users', page=users.next_num, search=search_query) }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    feather.replace();
+</script>
+{% endblock %}

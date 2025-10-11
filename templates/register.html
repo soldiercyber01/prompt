@@ -10,10 +10,12 @@
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Register</h2>
                     
-                    <form method="POST">
+                    <form method="POST" id="registerForm">
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                            <input type="text" class="form-control" id="username" name="username" required pattern="^[A-Za-z0-9_]+$">
+                            <div class="form-text">Only letters, numbers, and underscores allowed</div>
+                            <div class="invalid-feedback">Username can only contain letters, numbers, and underscores</div>
                         </div>
                         
                         <div class="mb-3">
@@ -47,4 +49,17 @@
         </div>
     </div>
 </div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value;
+    const pattern = /^[A-Za-z0-9_]+$/;
+
+    if (!pattern.test(username)) {
+        e.preventDefault();
+        alert('Username can only contain letters, numbers, and underscores!');
+        return false;
+    }
+});
+</script>
 {% endblock %}

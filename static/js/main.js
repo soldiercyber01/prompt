@@ -107,16 +107,17 @@ function showPromptModal(prompt) {
                     <div class="detail-section">
                         <h6>${feather.icons['user'].toSvg()} Creator</h6>
                         <div class="d-flex align-items-center">
-
-                            <img src="${prompt.creator_profile_pic || '/static/images/default-profile.svg'}" 
-                                 alt="${prompt.creator}" 
-                                 class="rounded-circle me-2" 
-                                 width="40" height="35" 
-                                 style="object-fit: cover;">
-                            <div>
-                                <div>${prompt.creator}</div>
-                                <a href='https://instagram.com/${prompt.creator_instagram}' target='_blank'>${prompt.creator_instagram ? `<small class="text-muted">${feather.icons['instagram'].toSvg({width:14,height:14})} @${prompt.creator_instagram}</small>` : ''}</a>
-                            </div>
+                            <a href="/user/${prompt.creator}" class="text-decoration-none d-flex align-items-center">
+                                <img src="${prompt.creator_profile_pic || '/static/images/default-profile.svg'}"
+                                     alt="${prompt.creator}"
+                                     class="rounded-circle me-2"
+                                     width="40" height="35"
+                                     style="object-fit: cover;">
+                                <div>
+                                    <div class="text-white">${prompt.creator}</div>
+                                    ${prompt.creator_instagram ? `<a href='https://instagram.com/${prompt.creator_instagram}' target='_blank' onclick="event.stopPropagation()"><small class="text-muted">${feather.icons['instagram'].toSvg({width:14,height:14})} @${prompt.creator_instagram}</small></a>` : ''}
+                                </div>
+                            </a>
                         </div>
                     </div>
                     

@@ -59,9 +59,11 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        login_input = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter(
+            (User.username == login_input) | (User.email == login_input)
+        ).first()
         # print(user.is_otp_verified)
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
@@ -123,6 +125,12 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+
+        import re
+        if not re.match(r'^[A-Za-z0-9_]+$', username):
+            flash('Username can only contain letters, numbers, and underscores!', 'error')
+            return render_template('register.html')
+
         # Check if user already exists
         if User.query.filter_by(username=username).first():
             flash('Username already exists!', 'error')
@@ -560,32 +568,39 @@ def profile():
                 # Create unique filename
                 name, ext = os.path.splitext(filename)
                 unique_filename = f"{uuid.uuid4()}{ext}"
-                
+
                 # Ensure uploads directory exists
                 upload_dir = os.path.join(app.root_path, 'static', 'uploads', 'profiles')
                 os.makedirs(upload_dir, exist_ok=True)
-                
+
                 file_path = os.path.join(upload_dir, unique_filename)
                 file.save(file_path)
-                
+
                 # Store relative path in database
                 current_user.profile_pic = f'/static/uploads/profiles/{unique_filename}'
-        
+
         # Update Instagram ID
         instagram_id = request.form.get('instagram_id', '').strip()
         current_user.instagram_id = instagram_id if instagram_id else None
-        
+
+        # Update bio
+        bio = request.form.get('bio', '').strip()
+        current_user.bio = bio if bio else None
+
         username = request.form.get('username', '').strip()
         if current_user.username!=username:
-            if User.query.filter_by(username=username).first():
+            import re
+            if not re.match(r'^[A-Za-z0-9_]+$', username):
+                flash('Username can only contain letters, numbers, and underscores!', 'error')
+            elif User.query.filter_by(username=username).first():
                 flash('Username already exists!', 'error')
             else:
-                current_user.username= username 
+                current_user.username= username
 
         db.session.commit()
         flash('Profile updated successfully!', 'success')
         return redirect(url_for('profile'))
-    
+
     return render_template('profile.html')
 
 
@@ -793,3 +808,112 @@ def contact_us():
 @app.route('/cancellation-refund')
 def cancellation_refund():
     return render_template('cancellation-refund.html')
+
+@app.route('/user/<username>')
+def public_profile(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    prompts = Prompt.query.filter_by(user_id=user.id).order_by(Prompt.created_at.desc()).limit(12).all()
+    total_prompts = Prompt.query.filter_by(user_id=user.id).count()
+    return render_template('public_profile.html', user=user, prompts=prompts, total_prompts=total_prompts)
+
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        flash('Access denied. Admin privileges required.', 'error')
+        return redirect(url_for('index'))
+
+    search_query = request.args.get('search', '').strip()
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+
+    query = User.query
+
+    if search_query:
+        search_filter = f'%{search_query}%'
+        query = query.filter(
+            (User.username.ilike(search_filter)) |
+            (User.email.ilike(search_filter))
+        )
+
+    users_pagination = query.order_by(User.created_at.desc()).paginate(page=page, per_page=per_page)
+
+    total_users = User.query.count()
+    subscribed_users = User.query.filter_by(is_subscribed=True).count()
+
+    seven_days_ago = datetime.utcnow() - timedelta(days=7)
+    recent_signups = User.query.filter(User.created_at >= seven_days_ago).count()
+
+    return render_template('admin_users.html',
+                         users=users_pagination,
+                         total_users=total_users,
+                         subscribed_users=subscribed_users,
+                         recent_signups=recent_signups,
+                         search_query=search_query)
+
+@app.route('/sitemap.xml')
+def sitemap():
+    pages = []
+
+    pages.append({
+        'loc': url_for('index', _external=True),
+        'lastmod': datetime.utcnow().strftime('%Y-%m-%d'),
+        'changefreq': 'daily',
+        'priority': '1.0'
+    })
+
+    pages.append({
+        'loc': url_for('subscription', _external=True),
+        'lastmod': datetime.utcnow().strftime('%Y-%m-%d'),
+        'changefreq': 'weekly',
+        'priority': '0.8'
+    })
+
+    categories = Category.query.all()
+    for category in categories:
+        pages.append({
+            'loc': url_for('index', category=category.id, _external=True),
+            'lastmod': datetime.utcnow().strftime('%Y-%m-%d'),
+            'changefreq': 'daily',
+            'priority': '0.9'
+        })
+
+    users = User.query.filter_by(is_otp_verified=True).all()
+    for user in users:
+        pages.append({
+            'loc': url_for('public_profile', username=user.username, _external=True),
+            'lastmod': user.created_at.strftime('%Y-%m-%d'),
+            'changefreq': 'weekly',
+            'priority': '0.7'
+        })
+
+    sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+
+    for page in pages:
+        sitemap_xml += '  <url>\n'
+        sitemap_xml += f'    <loc>{page["loc"]}</loc>\n'
+        sitemap_xml += f'    <lastmod>{page["lastmod"]}</lastmod>\n'
+        sitemap_xml += f'    <changefreq>{page["changefreq"]}</changefreq>\n'
+        sitemap_xml += f'    <priority>{page["priority"]}</priority>\n'
+        sitemap_xml += '  </url>\n'
+
+    sitemap_xml += '</urlset>'
+
+    from flask import Response
+    return Response(sitemap_xml, mimetype='application/xml')
+
+@app.route('/robots.txt')
+def robots():
+    robots_txt = """User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /profile
+Disallow: /saved_prompts
+Disallow: /my_prompts
+
+Sitemap: {sitemap_url}
+""".format(sitemap_url=url_for('sitemap', _external=True))
+
+    from flask import Response
+    return Response(robots_txt, mimetype='text/plain')

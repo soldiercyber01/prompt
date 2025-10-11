@@ -29,26 +29,36 @@
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" name="username" 
+                                    <input type="text" class="form-control" id="username" name="username"
                                            value="{{ current_user.username }}"
-                                           placeholder="Enetr your username">
+                                           placeholder="Enter your username"
+                                           pattern="^[A-Za-z0-9_]+$">
+                                    <div class="form-text">Only letters, numbers, and underscores allowed</div>
+                                    <div class="invalid-feedback">Username can only contain letters, numbers, and underscores</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" 
+                                    <input type="email" class="form-control" id="email" name="email"
                                            value="{{ current_user.email }}" readonly>
                                 </div>
                             </div>
                         </div>
-                        
+
+                        <div class="mb-3">
+                            <label for="bio" class="form-label">Bio</label>
+                            <textarea class="form-control" id="bio" name="bio" rows="3"
+                                      placeholder="Tell us about yourself...">{{ current_user.bio or '' }}</textarea>
+                            <div class="form-text">This will be displayed on your public profile.</div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="instagram_id" class="form-label">Instagram Username</label>
                             <div class="input-group">
                                 <span class="input-group-text">@</span>
-                                <input type="text" class="form-control" id="instagram_id" name="instagram_id" 
-                                       value="{{ current_user.instagram_id or '' }}" 
+                                <input type="text" class="form-control" id="instagram_id" name="instagram_id"
+                                       value="{{ current_user.instagram_id or '' }}"
                                        placeholder="your_instagram_handle">
                             </div>
                             <div class="form-text">This will be displayed in your prompts to help others connect with you.</div>
@@ -98,6 +108,17 @@ document.getElementById('profile_pic').addEventListener('change', function(e) {
             document.querySelector('img[alt="Profile Picture"]').src = e.target.result;
         };
         reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+document.querySelector('form').addEventListener('submit', function(e) {
+    const username = document.getElementById('username').value;
+    const pattern = /^[A-Za-z0-9_]+$/;
+
+    if (!pattern.test(username)) {
+        e.preventDefault();
+        alert('Username can only contain letters, numbers, and underscores!');
+        return false;
     }
 });
 </script>

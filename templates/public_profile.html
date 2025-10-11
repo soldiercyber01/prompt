@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }} - Prompts Library{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center mb-4 mb-md-0">
+                            <img src="{{ user.profile_pic or url_for('static', filename='images/default-profile.svg') }}"
+                                 alt="{{ user.username }}"
+                                 class="rounded-circle mb-3"
+                                 width="150" height="150"
+                                 style="object-fit: cover; border: 3px solid var(--bs-border-color);">
+                            {% if user.is_subscribed %}
+                                <span class="badge bg-success mb-2">Premium Creator</span>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-9">
+                            <h2 class="mb-3">{{ user.username }}</h2>
+
+                            {% if user.bio %}
+                            <div class="mb-3">
+                                <h6 class="text-muted"><i data-feather="info"></i> Bio</h6>
+                                <p>{{ user.bio }}</p>
+                            </div>
+                            {% endif %}
+
+                            {% if user.instagram_id %}
+                            <div class="mb-3">
+                                <h6 class="text-muted"><i data-feather="instagram"></i> Instagram</h6>
+                                <a href="https://instagram.com/{{ user.instagram_id }}" target="_blank" class="text-decoration-none">
+                                    @{{ user.instagram_id }}
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            <div class="row mt-4">
+                                <div class="col-6 col-md-4">
+                                    <div class="text-center p-3 bg-body-secondary rounded">
+                                        <h4 class="mb-0">{{ total_prompts }}</h4>
+                                        <small class="text-muted">Total Prompts</small>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <div class="text-center p-3 bg-body-secondary rounded">
+                                        <h4 class="mb-0">{{ user.created_at.strftime('%b %Y') }}</h4>
+                                        <small class="text-muted">Joined</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if current_user.is_authenticated and current_user.id == user.id %}
+                            <div class="mt-4">
+                                <a href="{{ url_for('profile') }}" class="btn btn-primary">
+                                    <i data-feather="edit"></i> Edit Profile
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if prompts %}
+            <div class="mt-4">
+                <h4 class="mb-3">Recent Prompts by {{ user.username }}</h4>
+                <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-3">
+                    {% for prompt in prompts %}
+                    <div class="col" data-prompt-id="{{ prompt.id }}">
+                        <div class="card prompt-card h-100">
+                            <img src="{{ prompt.image_url }}" class="card-img-top" alt="{{ prompt.title }}" loading="lazy">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ prompt.title }}</h6>
+                                <p class="card-text text-muted small">{{ prompt.description[:80] }}{% if prompt.description|length > 80 %}...{% endif %}</p>
+                                <span class="badge bg-secondary">{{ prompt.category.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="mt-4 text-center p-5">
+                <i data-feather="image" size="48" class="text-muted mb-3"></i>
+                <h5 class="text-muted">No prompts yet</h5>
+                <p class="text-muted">{{ user.username }} hasn't created any prompts yet.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    feather.replace();
+</script>
+{% endblock %}
