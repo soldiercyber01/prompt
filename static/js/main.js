@@ -1,5 +1,6 @@
 // Global variables
 let currentCategories = [];
+let originalUrlForPromptModal = null;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,8 +30,22 @@ function initializeEventListeners() {
     if (promptModal) {
         promptModal.addEventListener('hidden.bs.modal', function() {
             document.getElementById('promptModalContent').innerHTML = '';
+            // Restore original URL if we navigated to a slug while opening modal
+            if (originalUrlForPromptModal) {
+                history.replaceState({}, '', originalUrlForPromptModal);
+                originalUrlForPromptModal = null;
+            }
         });
     }
+
+    // Close modal on back button if open
+    window.addEventListener('popstate', function() {
+        const modalEl = document.getElementById('promptModal');
+        if (modalEl && modalEl.classList.contains('show')) {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+    });
 
     // Edit modal events
     const editModal = document.getElementById('editPromptModal');
@@ -73,6 +88,15 @@ async function viewPrompt(promptId) {
         const response = await fetch(`/get_prompt/${promptId}`);
         const data = await response.json();
         
+        // Push slug URL to history if available
+        if (data.slug) {
+            const slugPath = `/prompts/${data.slug}`;
+            if (window.location.pathname !== slugPath) {
+                originalUrlForPromptModal = window.location.href;
+                history.pushState({ modal: 'prompt', slug: data.slug }, '', slugPath);
+            }
+        }
+
         showPromptModal(data);
     } catch (error) {
         console.error('Error fetching prompt details:', error);
@@ -612,7 +636,7 @@ function sharePromptText(promptId) {
     fetch(`/get_prompt/${promptId}`)
         .then(res => res.json())
         .then(prompt => {
-            const shareUrl = `${window.location.origin}/?prompt=${promptId}`;
+            const shareUrl = prompt.slug ? `${window.location.origin}/prompts/${prompt.slug}` : `${window.location.origin}/?prompt=${promptId}`;
             // Dynamic share text: title + creator
             const shareText = `Title : ${prompt.title}\nby ${prompt.creator}\nCheck it out here: `;
 
@@ -641,6 +665,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (promptId) {
         // Agar prompt param hai, modal open karo
         viewPrompt(promptId);
+        return;
+    }
+
+    // If landing directly on a slug URL like /prompts/<slug>, auto-open modal
+    const slugMatch = window.location.pathname.match(/^\/prompts\/([a-z0-9\-]+)$/);
+    if (slugMatch) {
+        const slug = slugMatch[1];
+        fetch(`/prompts/${slug}`)
+            .then(r => r.json())
+            .then(data => {
+                // Do not set originalUrlForPromptModal here; user navigated directly.
+                showPromptModal(data);
+            })
+            .catch(() => {});
     }
 });
 

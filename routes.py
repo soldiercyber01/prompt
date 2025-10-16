@@ -56,6 +56,57 @@ def index():
         sponsorships=sponsorships
     )
 
+
+@app.route('/category/<slug>')
+def category_page(slug):
+    category = Category.query.filter_by(slug=slug).first_or_404()
+    page = request.args.get('page', 1, type=int)
+    per_page = 28
+    sponsorships = Sponsorship.query.filter(
+        Sponsorship.is_active == True,
+        db.or_(Sponsorship.expires_at.is_(None), Sponsorship.expires_at > datetime.utcnow())
+    ).all()
+    per_page = max(1, per_page - len(sponsorships))
+    prompts = Prompt.query.filter_by(category_id=category.id).order_by(Prompt.id.desc()).paginate(page=page, per_page=per_page)
+    categories = Category.query.all()
+    return render_template(
+        'index.html',
+        prompts=prompts,
+        categories=categories,
+        selected_category=category.id,
+        selected_category_slug=category.slug,
+        sponsorships=sponsorships
+    )
+
+
+@app.route('/prompts/<slug>')
+def prompt_detail_by_slug(slug):
+    prompt = Prompt.query.filter_by(slug=slug).first_or_404()
+    is_saved = False
+    if current_user.is_authenticated:
+        is_saved = SavedPrompt.query.filter_by(user_id=current_user.id, prompt_id=prompt.id).first() is not None
+    return jsonify({
+        'id': prompt.id,
+        'slug': prompt.slug,
+        'title': prompt.title,
+        'description': prompt.description,
+        'prompt_text': prompt.prompt_text,
+        'image_url': prompt.image_url,
+        'category': prompt.category.name,
+        'category_slug': prompt.category.slug,
+        'creator': prompt.creator.username,
+        'created_at': prompt.created_at.strftime('%B %d, %Y'),
+        'creator_profile_pic': prompt.creator.profile_pic,
+        'creator_instagram': prompt.creator.instagram_id,
+        'is_saved': is_saved,
+        'can_edit': current_user.is_authenticated and prompt.user_id == current_user.id,
+        'can_view_details': current_user.is_authenticated and (current_user.is_subscribed or (current_user.subscription_expiry and current_user.subscription_expiry > datetime.utcnow())),
+        'can_start_trial': current_user.is_authenticated and (not current_user.is_subscribed)
+    })
+
+
+ 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -632,11 +683,13 @@ def get_prompt(prompt_id):
     
     return jsonify({
         'id': prompt.id,
+        'slug': prompt.slug,
         'title': prompt.title,
         'description': prompt.description,
         'prompt_text': prompt.prompt_text,
         'image_url': prompt.image_url,
         'category': prompt.category.name,
+        'category_slug': prompt.category.slug,
         'creator': prompt.creator.username,
         'created_at': prompt.created_at.strftime('%B %d, %Y'),
         'creator_profile_pic': prompt.creator.profile_pic,
@@ -884,12 +937,13 @@ def sitemap():
 
     categories = Category.query.all()
     for category in categories:
-        pages.append({
-            'loc': url_for('index', category=category.id, _external=True),
-            'lastmod': datetime.utcnow().strftime('%Y-%m-%d'),
-            'changefreq': 'daily',
-            'priority': '0.9'
-        })
+        if category.slug:
+            pages.append({
+                'loc': url_for('category_page', slug=category.slug, _external=True),
+                'lastmod': datetime.utcnow().strftime('%Y-%m-%d'),
+                'changefreq': 'daily',
+                'priority': '0.9'
+            })
 
     users = User.query.filter_by(is_otp_verified=True).all()
     for user in users:
@@ -899,6 +953,17 @@ def sitemap():
             'changefreq': 'weekly',
             'priority': '0.7'
         })
+
+    # Include recent prompts by slug
+    recent_prompts = Prompt.query.order_by(Prompt.created_at.desc()).limit(1000).all()
+    for p in recent_prompts:
+        if p.slug:
+            pages.append({
+                'loc': url_for('prompt_detail_by_slug', slug=p.slug, _external=True),
+                'lastmod': p.created_at.strftime('%Y-%m-%d'),
+                'changefreq': 'weekly',
+                'priority': '0.6'
+            })
 
     sitemap_xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     sitemap_xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

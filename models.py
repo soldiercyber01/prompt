@@ -1,6 +1,42 @@
 from extensions import db
 from flask_login import UserMixin
 from datetime import datetime
+import re
+import unicodedata
+from sqlalchemy import event
+from sqlalchemy.orm import object_session
+
+
+def slugify(value: str) -> str:
+    """Convert a string to a URL-friendly slug: lowercase, hyphen-separated, ASCII only."""
+    if not value:
+        return ''
+    normalized = unicodedata.normalize('NFKD', value)
+    ascii_only = normalized.encode('ascii', 'ignore').decode('ascii')
+    # Replace non-alphanumeric with spaces
+    cleaned = re.sub(r'[^a-zA-Z0-9]+', ' ', ascii_only)
+    # Collapse whitespace and join with hyphens
+    collapsed = re.sub(r'\s+', '-', cleaned).strip('-')
+    return collapsed.lower()
+
+
+def generate_unique_slug(session, model_class, base_slug: str, instance_id: int | None = None) -> str:
+    """Ensure slug uniqueness by appending -1, -2, ... if needed.
+    If instance_id is provided, exclude that row (useful for updates).
+    """
+    if not base_slug:
+        base_slug = 'item'
+    candidate = base_slug
+    suffix = 0
+    while True:
+        query = session.query(model_class).filter_by(slug=candidate)
+        if instance_id is not None:
+            query = query.filter(model_class.id != instance_id)
+        exists = session.query(query.exists()).scalar()
+        if not exists:
+            return candidate
+        suffix += 1
+        candidate = f"{base_slug}-{suffix}"
 
 
 class User(UserMixin, db.Model):
@@ -32,9 +68,31 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text)
+    slug = db.Column(db.String(255), unique=True, index=True)
     
     # Relationships
     prompts = db.relationship('Prompt', backref='category', lazy=True)
+
+
+@event.listens_for(Category, 'before_insert')
+def category_set_slug_before_insert(mapper, connection, target):
+    if not target.slug:
+        session = object_session(target)
+        if session is None:
+            return
+        base = slugify(target.name)
+        target.slug = generate_unique_slug(session, Category, base)
+
+
+@event.listens_for(Category, 'before_update')
+def category_preserve_or_set_slug_before_update(mapper, connection, target):
+    # Preserve existing slug; generate if missing
+    if not target.slug:
+        session = object_session(target)
+        if session is None:
+            return
+        base = slugify(target.name)
+        target.slug = generate_unique_slug(session, Category, base, instance_id=target.id)
 
 
 class Prompt(db.Model):
@@ -44,6 +102,7 @@ class Prompt(db.Model):
     prompt_text = db.Column(db.Text, nullable=False)
     image_url = db.Column(db.String(500), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    slug = db.Column(db.String(255), unique=True, index=True)
     
     # Foreign Keys
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -51,6 +110,27 @@ class Prompt(db.Model):
     
     # Relationships
     saved_by = db.relationship('SavedPrompt', backref='prompt', lazy=True, cascade='all, delete-orphan')
+
+
+@event.listens_for(Prompt, 'before_insert')
+def prompt_set_slug_before_insert(mapper, connection, target):
+    if not target.slug:
+        session = object_session(target)
+        if session is None:
+            return
+        base = slugify(target.title)
+        target.slug = generate_unique_slug(session, Prompt, base)
+
+
+@event.listens_for(Prompt, 'before_update')
+def prompt_preserve_or_set_slug_before_update(mapper, connection, target):
+    # Preserve existing slug; generate if missing
+    if not target.slug:
+        session = object_session(target)
+        if session is None:
+            return
+        base = slugify(target.title)
+        target.slug = generate_unique_slug(session, Prompt, base, instance_id=target.id)
 
 
 class SavedPrompt(db.Model):

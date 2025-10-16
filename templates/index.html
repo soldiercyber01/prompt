@@ -55,7 +55,7 @@
       "@type": "ListItem",
       "position": 2,
       "name": "{{ categories|selectattr('id', 'equalto', selected_category)|first|attr('name') }}",
-      "item": "{{ url_for('index', category=selected_category, _external=True) }}"
+      "item": "{{ (url_for('category_page', slug=selected_category_slug, _external=True) if selected_category_slug else url_for('index', category=selected_category, _external=True)) }}"
     }{% endif %}
   ]
 }
@@ -82,7 +82,7 @@
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="{{ url_for('index') }}">All Categories</a></li>
                         {% for category in categories %}
-                            <li><a class="dropdown-item" href="{{ url_for('index', category=category.id) }}">{{ category.name }}</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('category_page', slug=category.slug) if category.slug else url_for('index', category=category.id) }}">{{ category.name }}</a></li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -139,11 +139,11 @@
     <hr class="divider">
     <div class="pagination-buttons">
         {% if prompts.has_prev %}
-            <a href="{{ url_for('index', page=prompts.prev_num, category=selected_category) }}"
+            <a href="{{ (url_for('category_page', slug=selected_category_slug, page=prompts.prev_num) if selected_category_slug else url_for('index', page=prompts.prev_num, category=selected_category)) }}"
                class="btn btn-secondary me-2">Previous</a>
         {% endif %}
         {% if prompts.has_next %}
-            <a href="{{ url_for('index', page=prompts.next_num, category=selected_category) }}"
+            <a href="{{ (url_for('category_page', slug=selected_category_slug, page=prompts.next_num) if selected_category_slug else url_for('index', page=prompts.next_num, category=selected_category)) }}"
                class="btn btn-primary">Show More</a>
         {% endif %}
     </div>
